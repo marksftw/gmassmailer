@@ -1,0 +1,6 @@
+Hello {{first_name}} {{last_name}},
+
+This is a sample body template. Use {{first_name}} and {{last_name}} placeholders for personalization.
+
+Thanks,
+Your Name
