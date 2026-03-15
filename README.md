@@ -2,7 +2,7 @@
   <img src="gmassmailer-icon.png" alt="gmassmailer logo" width="150">
 </p>
 
-# gmassmailer
+# gMassMailer
 
 A CLI bulk email sender that uses the [Google Workspace CLI (`gws`)](https://github.com/googleworkspace/cli) to send personalized emails from your Google Workspace or Gmail account. Supports plain text and HTML email bodies with template placeholders.
 
