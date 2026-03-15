@@ -101,52 +101,6 @@ Found 2 invalid email(s):
   Row 5: Jane Doe - (empty)
 ```
 
-## Google Developer Setup
-
-Before you can send emails, you need to set up OAuth credentials in the Google Cloud Console so that `gws` can authenticate with your Gmail account.
-
-### 1. Create a Google Cloud project
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Click **Select a project** > **New Project**
-3. Name your project and click **Create**
-
-### 2. Enable the Gmail API
-
-1. In your project, search for **Gmail API** in the top search bar
-2. Click **Gmail API** and click **Enable**
-
-### 3. Configure the OAuth consent screen
-
-1. Go to **APIs & Services** > **OAuth consent screen**
-2. Select **External** (or **Internal** if using Google Workspace)
-3. Fill in the required fields (app name, support email)
-4. Under **Scopes**, add:
-   - `https://www.googleapis.com/auth/gmail.modify`
-   - `openid`
-   - `https://www.googleapis.com/auth/userinfo.email`
-5. Under **Test users**, add the Gmail/Workspace email you'll send from
-6. Click **Save**
-
-### 4. Create OAuth credentials
-
-1. Go to **APIs & Services** > **Credentials**
-2. Click **Create Credentials** > **OAuth client ID**
-3. Application type: **Desktop app** (important — do not use "Web application")
-4. Click **Create** and download the JSON file
-5. Move it to the gws config directory:
-   ```bash
-   cp ~/Downloads/client_secret_*.json ~/.config/gws/client_secret.json
-   ```
-
-### 5. Authenticate with gws
-
-```bash
-gws auth login
-```
-
-This will print a URL. Open it in your browser, sign in with your Google account, and approve access. The `gws` CLI listens on a local port to catch the callback automatically. Once authenticated, your credentials are stored locally and you're ready to send.
-
 ## File Setup
 
 You need three files to send emails:
@@ -212,3 +166,49 @@ Use these placeholders in your body and they'll be replaced per-contact:
 - Use `--test` to send a single test email before doing a full send
 - HTML emails support `<img>` tags with externally hosted images (e.g., Imgur, your own server)
 - The `emails/` directory is gitignored, so you can keep your real contact lists and email templates there without committing them
+
+## Google Developer Setup
+
+Before you can send emails, you need to set up OAuth credentials in the Google Cloud Console so that `gws` can authenticate with your Gmail account.
+
+### 1. Create a Google Cloud project
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Click **Select a project** > **New Project**
+3. Name your project and click **Create**
+
+### 2. Enable the Gmail API
+
+1. In your project, search for **Gmail API** in the top search bar
+2. Click **Gmail API** and click **Enable**
+
+### 3. Configure the OAuth consent screen
+
+1. Go to **APIs & Services** > **OAuth consent screen**
+2. Select **External** (or **Internal** if using Google Workspace)
+3. Fill in the required fields (app name, support email)
+4. Under **Scopes**, add:
+   - `https://www.googleapis.com/auth/gmail.modify`
+   - `openid`
+   - `https://www.googleapis.com/auth/userinfo.email`
+5. Under **Test users**, add the Gmail/Workspace email you'll send from
+6. Click **Save**
+
+### 4. Create OAuth credentials
+
+1. Go to **APIs & Services** > **Credentials**
+2. Click **Create Credentials** > **OAuth client ID**
+3. Application type: **Desktop app** (important — do not use "Web application")
+4. Click **Create** and download the JSON file
+5. Move it to the gws config directory:
+   ```bash
+   cp ~/Downloads/client_secret_*.json ~/.config/gws/client_secret.json
+   ```
+
+### 5. Authenticate with gws
+
+```bash
+gws auth login
+```
+
+This will print a URL. Open it in your browser, sign in with your Google account, and approve access. The `gws` CLI listens on a local port to catch the callback automatically. Once authenticated, your credentials are stored locally and you're ready to send.
