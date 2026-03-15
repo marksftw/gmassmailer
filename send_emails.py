@@ -27,8 +27,7 @@ def parse_args():
     )
     parser.add_argument(
         "-c", "--csv",
-        required=True,
-        help="Path to CSV file with columns: first_name, last_name, email",
+        help="Path to CSV file with columns: first_name, last_name, email (not used with --test)",
     )
     parser.add_argument(
         "-s", "--subject",
@@ -54,19 +53,23 @@ def parse_args():
     parser.add_argument(
         "--test",
         action="store_true",
-        help="Prepend [TEST] to the email subject line",
+        help="Send a single test email — prompts for a recipient email address",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    if not args.test and not args.csv:
+        parser.error("--csv is required when not using --test")
+
+    return args
 
 
 def validate_files(csv_path, subject_path, body_path):
     """Validate that all required files exist and are non-empty."""
     errors = []
-    for path, label in [
-        (csv_path, "CSV"),
-        (subject_path, "Subject"),
-        (body_path, "Body"),
-    ]:
+    files = [(subject_path, "Subject"), (body_path, "Body")]
+    if csv_path is not None:
+        files.insert(0, (csv_path, "CSV"))
+    for path, label in files:
         try:
             with open(path, "r") as f:
                 content = f.read().strip()
@@ -153,12 +156,59 @@ def send_email(to, subject, body, html=False):
 def main():
     args = parse_args()
 
+    if args.test:
+        # Test mode: prompt for a single recipient email
+        validate_files(None, args.subject, args.body)
+
+        test_email = input("Enter the email address to send a test to: ").strip()
+        if not test_email:
+            print("Error: No email address provided.", file=sys.stderr)
+            sys.exit(1)
+
+        subject = f"[TEST] {read_file(args.subject)}"
+        body_template = read_file(args.body)
+        is_html = os.path.splitext(args.body)[1].lower() in (".html", ".htm")
+
+        contact = {
+            "first_name": "Test",
+            "last_name": "User",
+            "email": test_email,
+        }
+        body = personalize(body_template, contact)
+
+        print()
+        print("=" * 50)
+        print("TEST MODE - Sending a single test email")
+        print("=" * 50)
+        print(f"To:       {test_email}")
+        print(f"Subject:  {subject}")
+        print(f"Body:     {args.body} ({'HTML' if is_html else 'plain text'})")
+        print("=" * 50)
+        print()
+
+        if args.dry_run:
+            print("DRY RUN - Email not sent")
+            print()
+            print(f"Body:")
+            print(body)
+        else:
+            print(f"Sending to {test_email}...", end=" ")
+            success, error = send_email(test_email, subject, body, html=is_html)
+            if success:
+                print("Sent")
+            else:
+                print(f"FAILED - {error}")
+                sys.exit(1)
+
+        print()
+        print("=" * 50)
+        return
+
+    # Normal mode: send to all contacts in CSV
     validate_files(args.csv, args.subject, args.body)
 
     contacts = read_contacts(args.csv)
     subject = read_file(args.subject)
-    if args.test:
-        subject = f"[TEST] {subject}"
     body_template = read_file(args.body)
 
     # Auto-detect HTML based on file extension

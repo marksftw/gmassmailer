@@ -29,6 +29,78 @@ git clone https://github.com/marksftw/gmassmailer.git
 cd gmassmailer
 ```
 
+## Usage
+
+### Sending Emails
+
+#### Preview emails without sending (dry run)
+
+```bash
+python3 send_emails.py -c contacts.csv -s subject.txt -b body.txt --dry-run
+```
+
+#### Send emails
+
+```bash
+python3 send_emails.py -c contacts.csv -s subject.txt -b body.txt
+```
+
+#### Send HTML emails
+
+```bash
+python3 send_emails.py -c contacts.csv -s subject.txt -b body.html
+```
+
+#### Send a test email
+
+Send a single test email to verify everything works. You'll be prompted for a recipient email address — no CSV file needed:
+
+```bash
+python3 send_emails.py -s subject.txt -b body.html --test
+```
+
+The subject will be prefixed with `[TEST]` and template placeholders will be filled with "Test User".
+
+#### Custom delay between sends
+
+```bash
+python3 send_emails.py -c contacts.csv -s subject.txt -b body.txt --delay 2.5
+```
+
+#### All flags
+
+| Flag | Description |
+|---|---|
+| `-c`, `--csv` | Path to CSV file (required unless using `--test`) |
+| `-s`, `--subject` | Path to subject line file (required) |
+| `-b`, `--body` | Path to body template file (required) |
+| `--delay` | Seconds between sends (default: 1.0) |
+| `--dry-run` | Preview emails without sending |
+| `--test` | Send a single test email — prompts for a recipient address |
+
+### Validating Emails (Optional but Recommended)
+
+Before sending, validate that all email addresses in your CSV are properly formatted:
+
+```bash
+python3 validate_emails.py contacts.csv
+```
+
+This will catch missing `@` signs, invalid domains, empty entries, and other formatting issues. If everything looks good:
+
+```
+All email addresses are valid.
+```
+
+If there are problems, it will list them:
+
+```
+Found 2 invalid email(s):
+
+  Row 3: John Smith - john@
+  Row 5: Jane Doe - (empty)
+```
+
 ## Google Developer Setup
 
 Before you can send emails, you need to set up OAuth credentials in the Google Cloud Console so that `gws` can authenticate with your Gmail account.
@@ -41,8 +113,8 @@ Before you can send emails, you need to set up OAuth credentials in the Google C
 
 ### 2. Enable the Gmail API
 
-1. In your project, go to **APIs & Services** > **Library**
-2. Search for **Gmail API** and click **Enable**
+1. In your project, search for **Gmail API** in the top search bar
+2. Click **Gmail API** and click **Enable**
 
 ### 3. Configure the OAuth consent screen
 
@@ -134,75 +206,9 @@ Use these placeholders in your body and they'll be replaced per-contact:
 | `{{last_name}}` | Contact's last name (title case) |
 | `{{email}}` | Contact's email address |
 
-## Usage
-
-### Validate your contact list
-
-Before sending, validate that all email addresses in your CSV are properly formatted:
-
-```bash
-python3 validate_emails.py contacts.csv
-```
-
-This will catch missing `@` signs, invalid domains, empty entries, and other formatting issues. If everything looks good:
-
-```
-All email addresses are valid.
-```
-
-If there are problems, it will list them:
-
-```
-Found 2 invalid email(s):
-
-  Row 3: John Smith - john@
-  Row 5: Jane Doe - (empty)
-```
-
-### Preview emails without sending (dry run)
-
-```bash
-python3 send_emails.py -c contacts.csv -s subject.txt -b body.txt --dry-run
-```
-
-### Send emails
-
-```bash
-python3 send_emails.py -c contacts.csv -s subject.txt -b body.txt
-```
-
-### Send HTML emails
-
-```bash
-python3 send_emails.py -c contacts.csv -s subject.txt -b body.html
-```
-
-### Send with [TEST] prefix in subject
-
-```bash
-python3 send_emails.py -c contacts.csv -s subject.txt -b body.html --test
-```
-
-### Custom delay between sends
-
-```bash
-python3 send_emails.py -c contacts.csv -s subject.txt -b body.txt --delay 2.5
-```
-
-### All flags
-
-| Flag | Description |
-|---|---|
-| `-c`, `--csv` | Path to CSV file (required) |
-| `-s`, `--subject` | Path to subject line file (required) |
-| `-b`, `--body` | Path to body template file (required) |
-| `--delay` | Seconds between sends (default: 1.0) |
-| `--dry-run` | Preview emails without sending |
-| `--test` | Prepend `[TEST]` to the subject line |
-
 ## Tips
 
 - Use `--dry-run` first to verify your emails look correct before sending
-- Use `--test` when testing with real recipients so they know it's a test
+- Use `--test` to send a single test email before doing a full send
 - HTML emails support `<img>` tags with externally hosted images (e.g., Imgur, your own server)
 - The `emails/` directory is gitignored, so you can keep your real contact lists and email templates there without committing them
